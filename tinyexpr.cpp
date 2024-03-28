@@ -1192,7 +1192,7 @@ namespace te_builtins
         if (base)
             return static_cast<long double>(std::strtoll(str + 2, endptr, base));
         else
-            return strtold(str, endptr);
+            return std::strtold(str, endptr);
         }
 
     [[nodiscard]]
