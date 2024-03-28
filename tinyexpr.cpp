@@ -1310,13 +1310,38 @@ void te_parser::next_token(te_parser::state* theState)
             (*theState->m_next == get_decimal_separator()))
             {
             char* nEnd{ nullptr };
-#ifdef TE_FLOAT
-            theState->m_value = static_cast<te_type>(std::strtof(theState->m_next, &nEnd));
-#elif defined(TE_LONG_DOUBLE)
-            theState->m_value = static_cast<te_type>(std::strtold(theState->m_next, &nEnd));
+
+            // Special handling for 0[a-x] (binary, octal, hex)
+            if ((*theState->m_next == '0') &&
+                ((theState->m_next + 1) != nullptr) && is_letter(*(theState->m_next + 1)) &&
+                ((theState->m_next + 2) != nullptr))
+            {
+                int base = 0;
+                switch (*(theState->m_next + 1))
+                {
+                    case 'b': base = 2;  break;
+                    case 'o': base = 8;  break;
+                    case 'x': base = 16; break;
+                    default:             break;
+                }
+#ifdef TE_INT
+                theState->m_value = static_cast<te_type>(std::stoi(theState->m_next + 2, &nEnd, base));
+#elif defined(TE_LONG_INT)
+                theState->m_value = static_cast<te_type>(std::strtoll(theState->m_next + 2, &nEnd, base));
 #else
-            theState->m_value = static_cast<te_type>(std::strtod(theState->m_next, &nEnd));
+                theState->m_value = static_cast<te_type>(std::strtol(theState->m_next + 2, &nEnd, base));
 #endif
+            }
+            else
+            {
+#ifdef TE_FLOAT
+                theState->m_value = static_cast<te_type>(std::strtof(theState->m_next, &nEnd));
+#elif defined(TE_LONG_DOUBLE)
+                theState->m_value = static_cast<te_type>(std::strtold(theState->m_next, &nEnd));
+#else
+                theState->m_value = static_cast<te_type>(std::strtod(theState->m_next, &nEnd));
+#endif
+            }
             theState->m_next = nEnd;
             theState->m_type = te_parser::state::token_type::TOK_NUMBER;
             }
