@@ -799,17 +799,61 @@ TEST_CASE("Zeros", "[zeros]")
     CHECK(std::isnan(tep.evaluate("(1%0)%1")));
     }
 
+TEST_CASE("Bin", "[bin]")
+    {
+    te_parser tep;
+
+    CHECK(tep.evaluate("0b0") == 0);
+    CHECK(tep.evaluate("0B0") == 0);
+    CHECK(tep.evaluate("0b1000") == 8);
+    CHECK(tep.evaluate("0B1000") == 8);
+    CHECK(tep.evaluate("0b11111111111111111111111111111111111111111111111111111") == 9007199254740991);
+    CHECK(tep.evaluate("0b10101111100111011110111") == 5754615);
+    CHECK(tep.evaluate("-0b10101111100111011110111") == -5754615);
+    CHECK(std::isnan(tep.evaluate("0b")));
+    CHECK(std::isnan(tep.evaluate("0B")));
+    CHECK(std::isnan(tep.evaluate("0bB")));
+    CHECK(std::isnan(tep.evaluate("0Bb")));
+    CHECK(std::isnan(tep.evaluate("0b1b")));
+    CHECK(std::isnan(tep.evaluate("0B1Q")));
+    }
+
+TEST_CASE("Oct", "[oct]")
+    {
+    te_parser tep;
+
+    CHECK(tep.evaluate("0o0") == 0);
+    CHECK(tep.evaluate("0O0") == 0);
+    CHECK(tep.evaluate("0o10") == 8);
+    CHECK(tep.evaluate("0O10") == 8);
+    CHECK(tep.evaluate("0o377777777777777777") == 9007199254740991);
+    CHECK(tep.evaluate("0o25747367") == 5754615);
+    CHECK(tep.evaluate("-0o25747367") == -5754615);
+    CHECK(std::isnan(tep.evaluate("0o")));
+    CHECK(std::isnan(tep.evaluate("0O")));
+    CHECK(std::isnan(tep.evaluate("0oO")));
+    CHECK(std::isnan(tep.evaluate("0Oo")));
+    CHECK(std::isnan(tep.evaluate("0o1o")));
+    CHECK(std::isnan(tep.evaluate("0O1Q")));
+    }
+
 TEST_CASE("Hex", "[hex]")
     {
     te_parser tep;
 
     CHECK(tep.evaluate("0x0") == 0);
+    CHECK(tep.evaluate("0X0") == 0);
     CHECK(tep.evaluate("0x8") == 8);
+    CHECK(tep.evaluate("0X8") == 8);
     CHECK(tep.evaluate("0x1FFFFFFFFFFFFF") == 9007199254740991);
     CHECK(tep.evaluate("0x57CEF7") == 5754615);
-    CHECK(tep.evaluate("0x57CEF7") == 5754615);
     CHECK(tep.evaluate("-0X57CEF7") == -5754615);
+    CHECK(std::isnan(tep.evaluate("0x")));
     CHECK(std::isnan(tep.evaluate("0X")));
+    CHECK(std::isnan(tep.evaluate("0xX")));
+    CHECK(std::isnan(tep.evaluate("0Xx")));
+    CHECK(std::isnan(tep.evaluate("0x1x")));
+    CHECK(std::isnan(tep.evaluate("0X1Q")));
     }
 
 TEST_CASE("UINT support", "[uint]")
