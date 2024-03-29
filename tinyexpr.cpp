@@ -1158,52 +1158,6 @@ namespace te_builtins
         {
         return val2;
         }
-
-    [[nodiscard]]
-    constexpr static int te_get_base(const char* str)
-        {
-        if (str && (str + 1) && (str + 2))
-        {
-            if (*str == '0')
-            {
-                char ch = *(str + 1);
-                if (ch == 'b' || ch == 'B') return 2;
-                if (ch == 'o' || ch == 'O') return 8;
-                if (ch == 'x' || ch == 'X') return 16;
-            }
-        }
-        return 0;
-        }
-
-    [[nodiscard]]
-    static float te_strtof(const char* str, char** endptr)
-        {
-        int base = te_get_base(str);
-        if (base)
-            return static_cast<float>(std::strtol(str + 2, endptr, base));
-        else
-            return std::strtof(str, endptr);
-        }
-
-    [[nodiscard]]
-    static long double te_strtold(const char* str, char** endptr)
-        {
-        int base = te_get_base(str);
-        if (base)
-            return static_cast<long double>(std::strtoll(str + 2, endptr, base));
-        else
-            return std::strtold(str, endptr);
-        }
-
-    [[nodiscard]]
-    static double te_strtod(const char* str, char** endptr)
-        {
-        int base = te_get_base(str);
-        if (base)
-            return static_cast<double>(std::strtol(str + 2, endptr, base));
-        else
-            return std::strtod(str, endptr);
-        }
     } // namespace te_builtins
 
 //--------------------------------------------------
@@ -1357,11 +1311,11 @@ void te_parser::next_token(te_parser::state* theState)
             {
             char* nEnd{ nullptr };
 #ifdef TE_FLOAT
-            theState->m_value = static_cast<te_type>(te_builtins::te_strtof(theState->m_next, &nEnd));
+            theState->m_value = static_cast<te_type>(string_to_float(theState->m_next, &nEnd));
 #elif defined(TE_LONG_DOUBLE)
-            theState->m_value = static_cast<te_type>(te_builtins::te_strtold(theState->m_next, &nEnd));
+            theState->m_value = static_cast<te_type>(string_to_long_double(theState->m_next, &nEnd));
 #else
-            theState->m_value = static_cast<te_type>(te_builtins::te_strtod(theState->m_next, &nEnd));
+            theState->m_value = static_cast<te_type>(string_to_double(theState->m_next, &nEnd));
 #endif
             theState->m_next = nEnd;
             theState->m_type = te_parser::state::token_type::TOK_NUMBER;

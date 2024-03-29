@@ -603,6 +603,90 @@ class te_parser
         return std::isfinite(val) ? static_cast<bool>(val) : false;
         }
 
+    /// @brief Helper function to get the numerical base (radix) of a number contained in a string.
+    /// @param str The string to examine.
+    /// @returns The base of the number if found, zero otherwise.
+    /// @note '0b' for binary, '0o' for octal, and '0x' for hexadecimal (case insensitive).
+    /// @private
+    [[nodiscard]]
+    static int get_base(const char* str)
+        {
+        if ((str != nullptr) && (*str == '0') && ((str + 1) != nullptr))
+            {
+            char ch = *(str + 1);
+            if (ch == 'b' || ch == 'B')
+                {
+                return 2;
+                }
+            if (ch == 'o' || ch == 'O')
+                {
+                return 8;
+                }
+            if (ch == 'x' || ch == 'X')
+                {
+                return 16;
+                }
+            }
+        return 0;
+        }
+
+    /// @brief Helper function to convert a string to a float.
+    /// @param str The string to examine.
+    /// @param endptr Set to the next character in str following the numerical value.
+    /// @returns The float value, zero on error.
+    /// @private
+    [[nodiscard]]
+    static float string_to_float(const char* str, char** endptr)
+        {
+        int base = get_base(str);
+        if (base && ((str + 2) != nullptr))
+            {
+            return static_cast<float>(std::strtol(str + 2, endptr, base));
+            }
+        else
+            {
+            return std::strtof(str, endptr);
+            }
+        }
+
+    /// @brief Helper function to convert a string to a long double.
+    /// @param str The string to examine.
+    /// @param endptr Set to the next character in str following the numerical value.
+    /// @returns The long double value, zero on error.
+    /// @private
+    [[nodiscard]]
+    static long double string_to_long_double(const char* str, char** endptr)
+        {
+        int base = get_base(str);
+        if (base && ((str + 2) != nullptr))
+            {
+            return static_cast<long double>(std::strtoll(str + 2, endptr, base));
+            }
+        else
+            {
+            return std::strtold(str, endptr);
+            }
+        }
+
+    /// @brief Helper function to convert a string to a double.
+    /// @param str The string to examine.
+    /// @param endptr Set to the next character in str following the numerical value.
+    /// @returns The double value, zero on error.
+    /// @private
+    [[nodiscard]]
+    static double string_to_double(const char* str, char** endptr)
+        {
+        int base = get_base(str);
+        if (base && ((str + 2) != nullptr))
+            {
+            return static_cast<double>(std::strtol(str + 2, endptr, base));
+            }
+        else
+            {
+            return std::strtod(str, endptr);
+            }
+        }
+
     /// @returns Information about how the parser is configured, its capabilities, etc.
     [[nodiscard]]
     static std::string info();
