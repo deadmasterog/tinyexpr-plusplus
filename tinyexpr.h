@@ -613,18 +613,16 @@ class te_parser
         {
         if ((str != nullptr) && (*str == '0') && ((str + 1) != nullptr))
             {
-            char ch = *(str + 1);
-            if (ch == 'b' || ch == 'B')
+            switch(te_string_less::tolower(*(str + 1)))
                 {
+            case 'b':
                 return 2;
-                }
-            if (ch == 'o' || ch == 'O')
-                {
+            case 'o':
                 return 8;
-                }
-            if (ch == 'x' || ch == 'X')
-                {
+            case 'x':
                 return 16;
+            default:
+                break;
                 }
             }
         return 0;
