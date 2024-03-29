@@ -630,61 +630,45 @@ class te_parser
         return 0;
         }
 
-    /// @brief Helper function to convert a string to a float.
+    /// @brief Helper function to convert a string to a number.
     /// @param str The string to examine.
     /// @param endptr Set to the next character in str following the numerical value.
-    /// @returns The float value, zero on error.
+    /// @returns The numerical value.
+    /// @throws std::runtime_error Throws an exception if conversion failed.
     /// @private
     [[nodiscard]]
-    static float string_to_float(const char* str, char** endptr)
+    static te_type string_to_number(const char* str, char** endptr)
         {
+        te_type value;
+        const char* sstr;
         int base = get_base(str);
         if (base && ((str + 2) != nullptr))
             {
-            return static_cast<float>(std::strtol(str + 2, endptr, base));
+            sstr = str + 2;
+#ifdef TE_FLOAT
+            value = static_cast<float>(std::strtol(sstr, endptr, base));
+#elif defined(TE_LONG_DOUBLE)
+            value = static_cast<long double>(std::strtoll(sstr, endptr, base));
+#else
+            value = static_cast<double>(std::strtol(sstr, endptr, base));
+#endif
             }
         else
             {
-            return std::strtof(str, endptr);
+            sstr = str;
+#ifdef TE_FLOAT
+            value = std::strtof(sstr, endptr);
+#elif defined(TE_LONG_DOUBLE)
+            value = std::strtold(sstr, endptr);
+#else
+            value = std::strtod(sstr, endptr);
+#endif
             }
-        }
-
-    /// @brief Helper function to convert a string to a long double.
-    /// @param str The string to examine.
-    /// @param endptr Set to the next character in str following the numerical value.
-    /// @returns The long double value, zero on error.
-    /// @private
-    [[nodiscard]]
-    static long double string_to_long_double(const char* str, char** endptr)
-        {
-        int base = get_base(str);
-        if (base && ((str + 2) != nullptr))
+        if (sstr == *endptr)
             {
-            return static_cast<long double>(std::strtoll(str + 2, endptr, base));
+            throw std::runtime_error("No valid conversion from string to number could be performed.");
             }
-        else
-            {
-            return std::strtold(str, endptr);
-            }
-        }
-
-    /// @brief Helper function to convert a string to a double.
-    /// @param str The string to examine.
-    /// @param endptr Set to the next character in str following the numerical value.
-    /// @returns The double value, zero on error.
-    /// @private
-    [[nodiscard]]
-    static double string_to_double(const char* str, char** endptr)
-        {
-        int base = get_base(str);
-        if (base && ((str + 2) != nullptr))
-            {
-            return static_cast<double>(std::strtol(str + 2, endptr, base));
-            }
-        else
-            {
-            return std::strtod(str, endptr);
-            }
+        return value;
         }
 
     /// @returns Information about how the parser is configured, its capabilities, etc.

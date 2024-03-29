@@ -1310,15 +1310,17 @@ void te_parser::next_token(te_parser::state* theState)
             (*theState->m_next == get_decimal_separator()))
             {
             char* nEnd{ nullptr };
-#ifdef TE_FLOAT
-            theState->m_value = static_cast<te_type>(string_to_float(theState->m_next, &nEnd));
-#elif defined(TE_LONG_DOUBLE)
-            theState->m_value = static_cast<te_type>(string_to_long_double(theState->m_next, &nEnd));
-#else
-            theState->m_value = static_cast<te_type>(string_to_double(theState->m_next, &nEnd));
-#endif
+            try
+                {
+                theState->m_value = static_cast<te_type>(string_to_number(theState->m_next, &nEnd));
+                theState->m_type = te_parser::state::token_type::TOK_NUMBER;
+                }
+            catch (const std::exception& exp)
+                {
+                theState->m_type = te_parser::state::token_type::TOK_ERROR;
+                m_lastErrorMessage = exp.what();
+                }
             theState->m_next = nEnd;
-            theState->m_type = te_parser::state::token_type::TOK_NUMBER;
             }
         else
             {
